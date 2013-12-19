@@ -13,11 +13,13 @@ public class CliquerDeposer : MonoBehaviour
 	private float TempsAnimationRetour;
 	private GameObject emplacementCible = null;
 	private SpriteRenderer RendererObjet;
+	private int AncienneProfondeur;
 
 	void Start()
 	{
 		RendererObjet = gameObject.GetComponent<SpriteRenderer>();
 	}
+
 	void Update()
 	{
 		if(RetourOrigine == true)
@@ -47,6 +49,8 @@ public class CliquerDeposer : MonoBehaviour
 		Decallage = CoordonneesOrigine - Camera.main.ScreenToWorldPoint(
 			new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
 		rigidbody2D.isKinematic = false;
+		AncienneProfondeur = RendererObjet.sortingOrder;
+		RendererObjet.sortingOrder = 10;
 	}
 
 	void OnMouseUp()
@@ -56,6 +60,7 @@ public class CliquerDeposer : MonoBehaviour
 		TempsEcouleAnimationRetour = 0;
 		TempsAnimationRetour = Vector3.Distance(CoordonneesOrigine, CoordonneesRelache) / VitesseAnimationRetour;
 		rigidbody2D.isKinematic = true;
+		RendererObjet.sortingOrder = AncienneProfondeur;
 
 		if(emplacementCible != null)
 		{
@@ -71,6 +76,8 @@ public class CliquerDeposer : MonoBehaviour
 		{
 			//Debug.Log("OnTriggerEnter2D", col.gameObject);
 			emplacementCible = col.gameObject;
+			ControlleurJeu.Instance.Surbrillance.transform.position = col.gameObject.transform.position;
+			ControlleurJeu.Instance.Surbrillance.SetActive(true);
 		}
 	}
 
@@ -80,6 +87,7 @@ public class CliquerDeposer : MonoBehaviour
 		{
 			//Debug.Log("OnTriggerExit2D", col.gameObject);
 			emplacementCible = null;
+			ControlleurJeu.Instance.Surbrillance.SetActive(false);
 		}
 	}
 }

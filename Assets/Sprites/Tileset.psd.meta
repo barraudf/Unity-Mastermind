@@ -149,5 +149,14 @@ TextureImporter:
         height: 32
       alignment: 6
       pivot: {x: 0, y: 0}
+    - name: Surbrillance
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 66
+        height: 64
+      alignment: 6
+      pivot: {x: 0, y: 0}
   spritePackingTag: 
   userData: 

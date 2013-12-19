@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 [ExecuteInEditMode]
-public class ControlleurJeu : MonoBehaviour
+public class ControlleurJeu : Singleton<ControlleurJeu>
 {
 	public Color[] CouleursPions = new Color[] { Color.blue, Color.red, Color.green, Color.cyan, Color.magenta, Color.yellow };
 	public Color CouleurBienPlacee = Color.white;
@@ -20,20 +20,24 @@ public class ControlleurJeu : MonoBehaviour
 	public GameObject PrefabPion;
 	public GameObject PrefabVerif;
 	public GameObject PrefabEmplacement;
+	public GameObject Surbrillance;
+	[HideInInspector]
+	public float LargeurPion;
+	[HideInInspector]
+	public float HauteurPion;
 
 
 	protected Color[] _CodeSecret = null;
 	protected ControlleurLigneActive _LigneActive;
 	protected GameObject _EmplacementHistorique;
-	float _LargeurPion;
-	float _HauteurPion;
+	private ControlleurJeu() {}
 
 	void Start()
 	{
 		InitialiserLigneActive();
 		_CodeSecret = GenererCodeSecret();
-		_EmplacementHistorique = (GameObject)GameObject.Find("EmplacementHistorique");
 
+		_EmplacementHistorique = (GameObject)GameObject.Find("EmplacementHistorique");
 		if(_EmplacementHistorique == null)
 			throw new UnityException("Impossible de trouver le GameObject EmplacementHistorique");
 
@@ -41,11 +45,12 @@ public class ControlleurJeu : MonoBehaviour
 			throw new UnityException("Le Prefab Pion doit etre initialisé");
 
 		SpriteRenderer sr = PrefabPion.GetComponent<SpriteRenderer>();
-
 		if(sr == null)
 			throw new UnityException("Le Prefab Pion doit avoir un composant SpriteRenderer");
-		_LargeurPion = sr.sprite.rect.width;
-		_HauteurPion = sr.sprite.rect.height;
+		LargeurPion = sr.sprite.rect.width;
+		HauteurPion = sr.sprite.rect.height;
+
+		Surbrillance.SetActive(false);
 	}
 
 	public Color[] GenererCodeSecret()
@@ -129,7 +134,7 @@ public class ControlleurJeu : MonoBehaviour
 	{
 		GameObject emplacementLignes = (GameObject)GameObject.Find("EmplacementLigneActive");
 		ControlleurLigneActive ligne = emplacementLignes.GetComponent<ControlleurLigneActive>();
-		ligne.Initialiser(this);
+		ligne.Initialiser();
 		_LigneActive = ligne;
 	}
 
@@ -142,12 +147,12 @@ public class ControlleurJeu : MonoBehaviour
 			GameObject pion = (GameObject) GameObject.Instantiate(PrefabPion);
 			pion.name = "Pion_" + i.ToString();
 			pion.transform.parent = ligne.transform;
-			pion.transform.localPosition = Vector3.right * i * (_LargeurPion + DistanceSeparationPions);
+			pion.transform.localPosition = Vector3.right * i * (LargeurPion + DistanceSeparationPions);
 			pion.GetComponent<SpriteRenderer>().color = code[i];
 		}
-		_EmplacementHistorique.transform.position += Vector3.up * (_HauteurPion + DistanceSeparationLignes);
+		_EmplacementHistorique.transform.position += Vector3.up * (HauteurPion + DistanceSeparationLignes);
 		ligne.transform.parent = _EmplacementHistorique.transform;
-		ligne.transform.localPosition = Vector3.down * indexLigne * (_HauteurPion + DistanceSeparationLignes);
+		ligne.transform.localPosition = Vector3.down * indexLigne * (HauteurPion + DistanceSeparationLignes);
 
 		AjouterVerif(ligne, bienPlace, malPlace);
 	}
@@ -155,7 +160,7 @@ public class ControlleurJeu : MonoBehaviour
 	public void AjouterVerif(GameObject ligne, int bienPlace, int malPlace)
 	{
 		int nombrePionsVerifParLigne = Mathf.CeilToInt(TailleCodeSecret / 2);
-		float xDepartVerif = TailleCodeSecret * _LargeurPion + TailleCodeSecret * DistanceSeparationPions;
+		float xDepartVerif = TailleCodeSecret * LargeurPion + TailleCodeSecret * DistanceSeparationPions;
 		float largeurVerif = SpriteEmplacementVerif.rect.width;
 		float hauteurVerif = SpriteEmplacementVerif.rect.height;
 
