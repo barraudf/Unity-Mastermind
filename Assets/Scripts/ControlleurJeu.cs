@@ -5,8 +5,7 @@ using System.Collections.Generic;
 public class ControlleurJeu : Singleton<ControlleurJeu>
 {
 	public Color[] CouleursPions = new Color[] { Color.blue, Color.red, Color.green, Color.cyan, Color.magenta, Color.yellow };
-	public Color CouleurBienPlacee = Color.white;
-	public Color CouleurMalPlacee = Color.black;
+	public Color CouleurNumeroLigne = Color.white;
 	public Sprite SpriteVerifBienPlacee;
 	public Sprite SpriteVerifMalPlacee;
 	public Sprite SpriteEmplacementVerif;
@@ -21,6 +20,8 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 	public GameObject PrefabVerif;
 	public GameObject PrefabEmplacement;
 	public GameObject Surbrillance;
+	public GameObject PrefabNumeroLigne;
+	public GameObject PrefabPionActif;
 	[HideInInspector]
 	public float LargeurPion;
 	[HideInInspector]
@@ -155,6 +156,18 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 		ligne.transform.localPosition = Vector3.down * indexLigne * (HauteurPion + DistanceSeparationLignes);
 
 		AjouterVerif(ligne, bienPlace, malPlace);
+		AjouterNumeroLigne(ligne, indexLigne+1);
+	}
+
+	public void AjouterNumeroLigne(GameObject ligne, int numLigne)
+	{
+		GameObject goNum = (GameObject) GameObject.Instantiate(PrefabNumeroLigne);
+		goNum.name = "NumLigne_" + numLigne.ToString();
+		goNum.transform.parent = ligne.transform;
+		goNum.transform.localPosition = new Vector3(-10, LargeurPion/2);
+		TextMesh tm = goNum.GetComponent<TextMesh>();
+		tm.text = numLigne.ToString() + ".";
+		tm.color = CouleurNumeroLigne;
 	}
 
 	public void AjouterVerif(GameObject ligne, int bienPlace, int malPlace)
