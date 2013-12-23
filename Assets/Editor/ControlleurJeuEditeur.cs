@@ -10,6 +10,9 @@ public class ControlleurJeuEditeur : Editor
 		DrawDefaultInspector();
 
 		if (GUI.changed)
+		{
 			((ControlleurJeu)target).InitialiserLigneActive();
+			((ControlleurJeu)target).InitialiserPionsActifs();
+		}
 	}
 }

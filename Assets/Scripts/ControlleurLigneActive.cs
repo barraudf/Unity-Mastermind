@@ -29,15 +29,15 @@ public class ControlleurLigneActive : MonoBehaviour
 		}
 	}
 
-	public Color[] LireCodeActuel()
+	public Sprite[] LireCodeActuel()
 	{
-		List<Color> ret = new List<Color>(_ListeSprites.Count);
+		List<Sprite> ret = new List<Sprite>(_ListeSprites.Count);
 		for(int i = 0; i < _ListeSprites.Count; i++)
 		{
 			if(ControlleurJeu.Instance.PrefabEmplacement.GetComponent<SpriteRenderer>().sprite == _ListeSprites[i].sprite)
 				return null;
 
-			ret.Add(_ListeSprites[i].color);
+			ret.Add(_ListeSprites[i].sprite);
 		}
 
 		return ret.ToArray();

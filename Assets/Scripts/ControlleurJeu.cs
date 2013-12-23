@@ -4,13 +4,15 @@ using System.Collections.Generic;
 [ExecuteInEditMode]
 public class ControlleurJeu : Singleton<ControlleurJeu>
 {
-	public Color[] CouleursPions = new Color[] { Color.blue, Color.red, Color.green, Color.cyan, Color.magenta, Color.yellow };
 	public Color CouleurNumeroLigne = Color.white;
+	public Sprite[] ListePions;
 	public Sprite SpriteVerifBienPlacee;
 	public Sprite SpriteVerifMalPlacee;
 	public Sprite SpriteEmplacementVerif;
 	[Range(2,8)]
 	public int TailleCodeSecret = 4;
+	[Range(2,8)]
+	public int NombreCouleurCodeSecret = 6;
 	public int NombreTentativesMax = 0;
 	public float DistanceSeparationLignes = 10f;
 	public float DistanceSeparationPions = 16f;
@@ -27,17 +29,13 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 	[HideInInspector]
 	public float HauteurPion;
 
-
-	protected Color[] _CodeSecret = null;
+	protected int[] _CodeSecret = null;
 	protected ControlleurLigneActive _LigneActive;
 	protected GameObject _EmplacementHistorique;
 	private ControlleurJeu() {}
 
 	void Start()
 	{
-		InitialiserLigneActive();
-		_CodeSecret = GenererCodeSecret();
-
 		_EmplacementHistorique = (GameObject)GameObject.Find("EmplacementHistorique");
 		if(_EmplacementHistorique == null)
 			throw new UnityException("Impossible de trouver le GameObject EmplacementHistorique");
@@ -52,16 +50,19 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 		HauteurPion = sr.sprite.rect.height;
 
 		Surbrillance.SetActive(false);
+		InitialiserLigneActive();
+		InitialiserPionsActifs();
+		_CodeSecret = GenererCodeSecret();
 	}
 
-	public Color[] GenererCodeSecret()
+	public int[] GenererCodeSecret()
 	{
-		List<Color> retour = new List<Color>(TailleCodeSecret);
+		List<int> retour = new List<int>(TailleCodeSecret);
 
 		for(int i = 0; i < TailleCodeSecret; i++)
 		{
-			int indexCouleurAleatoire = Mathf.RoundToInt(Random.value * (CouleursPions.Length - 1));
-			retour.Add(CouleursPions[indexCouleurAleatoire]);
+			int indexCouleurAleatoire = Mathf.RoundToInt(Random.value * (ListePions.Length - 1));
+			retour.Add(indexCouleurAleatoire);
 		}
 
 		return retour.ToArray();
@@ -74,7 +75,7 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 			if(_LigneActive != null)
 			{
 				int b, m;
-				Color[] codeActuel = _LigneActive.LireCodeActuel();
+				Sprite[] codeActuel = _LigneActive.LireCodeActuel();
 
 				if(codeActuel == null)
 					return;
@@ -89,7 +90,7 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 		}
 	}
 
-	public bool VerifierCode(Color[] CouleursPions, out int BienPlace, out int MalPlace)
+	public bool VerifierCode(Sprite[] CouleursPions, out int BienPlace, out int MalPlace)
 	{
 		int bienPlace = 0;
 		int malPlace = 0;
@@ -99,7 +100,7 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 		// Vérification des couleurs bien placées
 		for(int i = 0; i < TailleCodeSecret; i++)
 		{
-			if(CouleursPions[i] == _CodeSecret[i])
+			if(CouleursPions[i] == ListePions[_CodeSecret[i]])
 			{
 				bienPlace++;
 				indexPropositionDejaTraite.Add(i);
@@ -117,7 +118,7 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 				if(indexSolutionDejaTraite.Contains(y) == true || i == y)
 				   continue;
 
-				if(CouleursPions[i] == _CodeSecret[y])
+				if(CouleursPions[i] == ListePions[_CodeSecret[y]])
 				{
 					malPlace++;
 					indexSolutionDejaTraite.Add(y);
@@ -139,7 +140,7 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 		_LigneActive = ligne;
 	}
 
-	public void AjouterLigneHistorique(Color[] code, int bienPlace, int malPlace)
+	public void AjouterLigneHistorique(Sprite[] code, int bienPlace, int malPlace)
 	{
 		int indexLigne = _EmplacementHistorique.transform.childCount;
 		GameObject ligne = new GameObject("Ligne_" + indexLigne.ToString());
@@ -149,7 +150,7 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 			pion.name = "Pion_" + i.ToString();
 			pion.transform.parent = ligne.transform;
 			pion.transform.localPosition = Vector3.right * i * (LargeurPion + DistanceSeparationPions);
-			pion.GetComponent<SpriteRenderer>().color = code[i];
+			pion.GetComponent<SpriteRenderer>().sprite = code[i];
 		}
 		_EmplacementHistorique.transform.position += Vector3.up * (HauteurPion + DistanceSeparationLignes);
 		ligne.transform.parent = _EmplacementHistorique.transform;
@@ -201,6 +202,28 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 				pion.GetComponent<SpriteRenderer>().sprite = SpriteVerifMalPlacee;
 			else
 				pion.GetComponent<SpriteRenderer>().sprite = SpriteVerifBienPlacee;
+		}
+	}
+
+	public void InitialiserPionsActifs()
+	{
+		GameObject emplacementPions = (GameObject)GameObject.Find("EmplacementPions");
+		for (var i = emplacementPions.transform.childCount - 1; i >= 0; i--)
+		{
+			Transform pion = emplacementPions.transform.GetChild(i);
+			if(Application.isEditor == true)
+				DestroyImmediate(pion.gameObject);
+			else
+				Destroy(pion.gameObject);
+		}
+
+		for(int i = 0; i < NombreCouleurCodeSecret; i++)
+		{
+			GameObject obj = (GameObject) GameObject.Instantiate(PrefabPionActif);
+			obj.name = "Pion_" + i.ToString();
+			obj.transform.parent = emplacementPions.transform;
+			obj.transform.localPosition = Vector3.up * i * (HauteurPion);
+			obj.GetComponent<SpriteRenderer>().sprite = ListePions[i];
 		}
 	}
 }
