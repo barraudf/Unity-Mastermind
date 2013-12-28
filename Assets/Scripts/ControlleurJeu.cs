@@ -142,8 +142,8 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 		ControlleurLigneActive ligne = emplacementLignes.GetComponent<ControlleurLigneActive>();
 		ligne.Initialiser();
 		_LigneActive = ligne;
-		Vector3 positionBoutonValider = Camera.main.WorldToScreenPoint(new Vector3(CalculerXBoutonValider(), CalculerYBoutonValider(), 0f));
-		_EmplacementBoutonValider = new Rect(positionBoutonValider.x, Screen.height - positionBoutonValider.y, 50, 30);
+		Vector3 positionBoutonValider = PositionnerElementGUI(CalculerXBoutonValider(), CalculerYBoutonValider());
+		_EmplacementBoutonValider = new Rect(positionBoutonValider.x, positionBoutonValider.y, 50, 30);
 	}
 
 	public void AjouterLigneHistorique(Sprite[] code, int bienPlace, int malPlace)
@@ -244,5 +244,12 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 	protected float CalculerYBoutonValider()
 	{
 		return _LigneActive.transform.position.y + (HauteurPion /2) + 15f;
+	}
+
+	public static Vector3 PositionnerElementGUI(float x, float y)
+	{
+		Vector3 positionElement = Camera.main.WorldToScreenPoint(new Vector3(x, y, 0f));
+		positionElement.y = Screen.height - positionElement.y;
+		return positionElement;
 	}
 }
