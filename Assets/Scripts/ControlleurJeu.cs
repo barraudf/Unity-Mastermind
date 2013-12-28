@@ -35,6 +35,7 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 	protected ControlleurLigneActive _LigneActive;
 	protected GameObject _EmplacementHistorique;
 	private ControlleurJeu() {}
+	private Rect _EmplacementBoutonValider;
 
 	void Start()
 	{
@@ -73,7 +74,7 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 	void OnGUI()
 	{
 		GUI.skin = Skin;
-		if(GUI.Button(new Rect(20, 20, 50, 30), IconeBtnVerif ) == true)
+		if(GUI.Button(_EmplacementBoutonValider, IconeBtnVerif ) == true)
 		{
 			if(_LigneActive != null)
 			{
@@ -141,6 +142,8 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 		ControlleurLigneActive ligne = emplacementLignes.GetComponent<ControlleurLigneActive>();
 		ligne.Initialiser();
 		_LigneActive = ligne;
+		Vector3 positionBoutonValider = Camera.main.WorldToScreenPoint(new Vector3(CalculerXBoutonValider(), CalculerYBoutonValider(), 0f));
+		_EmplacementBoutonValider = new Rect(positionBoutonValider.x, Screen.height - positionBoutonValider.y, 50, 30);
 	}
 
 	public void AjouterLigneHistorique(Sprite[] code, int bienPlace, int malPlace)
@@ -228,5 +231,18 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 			obj.transform.localPosition = Vector3.up * i * (HauteurPion);
 			obj.GetComponent<SpriteRenderer>().sprite = ListePions[i];
 		}
+	}
+
+	// Retourne l'abscisse du bouton valider dans le monde (pas sur la caméra!)
+	protected float CalculerXBoutonValider()
+	{
+		return _LigneActive.transform.position.x +
+			TailleCodeSecret * (LargeurPion + DistanceSeparationLigneActive);
+	}
+
+	// Retourne l'ordonnée du bouton valider dans le monde (pas sur la caméra!)
+	protected float CalculerYBoutonValider()
+	{
+		return _LigneActive.transform.position.y + (HauteurPion /2) + 15f;
 	}
 }
