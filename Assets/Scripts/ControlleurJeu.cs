@@ -64,7 +64,7 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 
 		for(int i = 0; i < TailleCodeSecret; i++)
 		{
-			int indexCouleurAleatoire = Mathf.RoundToInt(Random.value * (ListePions.Length - 1));
+			int indexCouleurAleatoire = Mathf.RoundToInt(Random.value * (NombreCouleurCodeSecret - 1));
 			retour.Add(indexCouleurAleatoire);
 		}
 
