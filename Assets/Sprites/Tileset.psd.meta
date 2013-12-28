@@ -158,5 +158,14 @@ TextureImporter:
         height: 64
       alignment: 6
       pivot: {x: 0, y: 0}
+    - name: Bouton
+      rect:
+        serializedVersion: 2
+        x: 194
+        y: 3
+        width: 60
+        height: 60
+      alignment: 0
+      pivot: {x: .5, y: .5}
   spritePackingTag: 
   userData: 

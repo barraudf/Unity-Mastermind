@@ -28,6 +28,8 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 	public float LargeurPion;
 	[HideInInspector]
 	public float HauteurPion;
+	public GUISkin Skin;
+	public Texture IconeBtnVerif;
 
 	protected int[] _CodeSecret = null;
 	protected ControlleurLigneActive _LigneActive;
@@ -70,7 +72,8 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 
 	void OnGUI()
 	{
-		if(GUI.Button(new Rect(20, 20, 100, 30), "Vérifier Code") == true)
+		GUI.skin = Skin;
+		if(GUI.Button(new Rect(20, 20, 50, 30), IconeBtnVerif ) == true)
 		{
 			if(_LigneActive != null)
 			{
