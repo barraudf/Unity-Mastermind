@@ -36,12 +36,28 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 	protected GameObject _EmplacementHistorique;
 	private ControlleurJeu() {}
 	private Rect _EmplacementBoutonValider;
+	private BoxCollider2D _ZoneDefilable;
+	private float _MinDefilement;
+	private float _MaxDefilement;
+
+	public float MinDefilement
+	{
+		get { return _MinDefilement; }
+	}
+	
+	public float MaxDefilement
+	{
+		get { return _MaxDefilement; }
+	}
 
 	void Start()
 	{
 		_EmplacementHistorique = (GameObject)GameObject.Find("EmplacementHistorique");
 		if(_EmplacementHistorique == null)
 			throw new UnityException("Impossible de trouver le GameObject EmplacementHistorique");
+		_ZoneDefilable = _EmplacementHistorique.GetComponent<BoxCollider2D>();
+		if(_ZoneDefilable == null)
+			throw new UnityException("Le GameObject EmplacementHistorique ne possède pas de composant BoxCollider2d");
 
 		if(PrefabPion == null)
 			throw new UnityException("Le Prefab Pion doit etre initialisé");
@@ -160,10 +176,18 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 		}
 		_EmplacementHistorique.transform.position += Vector3.up * (HauteurPion + DistanceSeparationLignes);
 		ligne.transform.parent = _EmplacementHistorique.transform;
-		ligne.transform.localPosition = Vector3.down * indexLigne * (HauteurPion + DistanceSeparationLignes);
+		ligne.transform.localPosition = Vector3.down * (indexLigne + 1) * (HauteurPion + DistanceSeparationLignes);
 
 		AjouterVerif(ligne, bienPlace, malPlace);
 		AjouterNumeroLigne(ligne, indexLigne+1);
+
+		MettreAJourZoneDefilable();
+
+		_MaxDefilement = _EmplacementHistorique.transform.position.y;
+		if(_MaxDefilement > Camera.main.orthographicSize * 2)
+			_MinDefilement = Camera.main.orthographicSize * 2;
+		else
+			_MinDefilement = _MaxDefilement;
 	}
 
 	public void AjouterNumeroLigne(GameObject ligne, int numLigne)
@@ -180,7 +204,7 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 	public void AjouterVerif(GameObject ligne, int bienPlace, int malPlace)
 	{
 		int nombrePionsVerifParLigne = Mathf.CeilToInt(TailleCodeSecret / 2);
-		float xDepartVerif = TailleCodeSecret * LargeurPion + TailleCodeSecret * DistanceSeparationPions;
+		float xDepartVerif = TailleCodeSecret * (LargeurPion + DistanceSeparationPions);
 		float largeurVerif = SpriteEmplacementVerif.rect.width;
 		float hauteurVerif = SpriteEmplacementVerif.rect.height;
 
@@ -251,5 +275,15 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 		Vector3 positionElement = Camera.main.WorldToScreenPoint(new Vector3(x, y, 0f));
 		positionElement.y = Screen.height - positionElement.y;
 		return positionElement;
+	}
+
+	public void MettreAJourZoneDefilable()
+	{
+		float hauteur, largeur;
+		hauteur = _EmplacementHistorique.transform.childCount * (HauteurPion + DistanceSeparationLignes);
+		float largeurVerif = SpriteVerifBienPlacee.rect.width;
+		largeur = TailleCodeSecret * (LargeurPion + DistanceSeparationPions) + Mathf.CeilToInt(TailleCodeSecret / 2) * largeurVerif + 50f;
+		_ZoneDefilable.size = new Vector2(largeur, hauteur);
+		_ZoneDefilable.center = new Vector2(_ZoneDefilable.size.x / 2 - 30f, -(HauteurPion+DistanceSeparationLignes)/2 *_EmplacementHistorique.transform.childCount);
 	}
 }
