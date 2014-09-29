@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 13099bfae53519d42b8dc8b8f2870cc4
+guid: 55e780f3bf022004cbc15ff81c99e863
 TextureImporter:
   fileIDToRecycleName:
-    21300000: Bouton-Active
+    21300000: Box
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -22,10 +22,10 @@ TextureImporter:
   grayScaleToAlpha: 0
   generateCubemap: 0
   seamlessCubemap: 0
-  textureFormat: -3
-  maxTextureSize: 32
+  textureFormat: -1
+  maxTextureSize: 1024
   textureSettings:
-    filterMode: 0
+    filterMode: -1
     aniso: 1
     mipBias: -1
     wrapMode: 1
@@ -38,7 +38,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 1001
+  spritePixelsToUnits: 100
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings:

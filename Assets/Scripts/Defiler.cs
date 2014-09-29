@@ -20,9 +20,9 @@ public class Defiler : MonoBehaviour
 			_PositionSourisCyclePrecedent = Input.mousePosition;
 
 			if(transform.position.y < ControlleurJeu.Instance.MinDefilement)
-				transform.position = new Vector2(transform.position.x, ControlleurJeu.Instance.MinDefilement);
+				transform.position = new Vector3(transform.position.x, ControlleurJeu.Instance.MinDefilement, transform.position.z);
 			if(transform.position.y > ControlleurJeu.Instance.MaxDefilement)
-				transform.position = new Vector2(transform.position.x, ControlleurJeu.Instance.MaxDefilement);
+				transform.position = new Vector3(transform.position.x, ControlleurJeu.Instance.MaxDefilement, transform.position.z);
 		}
 	}
 

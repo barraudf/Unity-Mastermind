@@ -30,6 +30,7 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 	public float HauteurPion;
 	public GUISkin Skin;
 	public Texture IconeBtnVerif;
+	public EtatsPartie EtatPartie = EtatsPartie.Accueil;
 
 	protected int[] _CodeSecret = null;
 	protected ControlleurLigneActive _LigneActive;
@@ -37,8 +38,11 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 	private ControlleurJeu() {}
 	private Rect _EmplacementBoutonValider;
 	private BoxCollider2D _ZoneDefilable;
+	private Vector3 _PositionHistoriqueOrigine;
 	private float _MinDefilement;
 	private float _MaxDefilement;
+
+	public enum EtatsPartie { Accueil, PartieEnCours, Perdu, Gagne };
 
 	public float MinDefilement
 	{
@@ -50,12 +54,18 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 		get { return _MaxDefilement; }
 	}
 
+	public int Tentatives
+	{
+		get { return _EmplacementHistorique.transform.childCount; }
+	}
+
 	void Start()
 	{
 		_EmplacementHistorique = (GameObject)GameObject.Find("EmplacementHistorique");
 		if(_EmplacementHistorique == null)
 			throw new UnityException("Impossible de trouver le GameObject EmplacementHistorique");
 		_ZoneDefilable = _EmplacementHistorique.GetComponent<BoxCollider2D>();
+		_PositionHistoriqueOrigine = _EmplacementHistorique.transform.position;
 		if(_ZoneDefilable == null)
 			throw new UnityException("Le GameObject EmplacementHistorique ne possède pas de composant BoxCollider2d");
 
@@ -68,10 +78,10 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 		LargeurPion = sr.sprite.rect.width;
 		HauteurPion = sr.sprite.rect.height;
 
-		Surbrillance.SetActive(false);
-		InitialiserLigneActive();
-		InitialiserPionsActifs();
-		_CodeSecret = GenererCodeSecret();
+		GameObject emplacementLignes = (GameObject)GameObject.Find("EmplacementLigneActive");
+		_LigneActive = emplacementLignes.GetComponent<ControlleurLigneActive>();
+
+		MettreAZero();
 	}
 
 	public int[] GenererCodeSecret()
@@ -90,25 +100,57 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 	void OnGUI()
 	{
 		GUI.skin = Skin;
-		if(GUI.Button(_EmplacementBoutonValider, IconeBtnVerif ) == true)
+		switch(EtatPartie)
 		{
-			if(_LigneActive != null)
-			{
-				int b, m;
-				Sprite[] codeActuel = _LigneActive.LireCodeActuel();
+		case EtatsPartie.Gagne:
+                AfficherMenuPrincipal("Gagné !");
+                break;
+		case EtatsPartie.Perdu:
+                AfficherMenuPrincipal("Perdu...");
+                break;
+		case EtatsPartie.Accueil:
+                AfficherMenuPrincipal("Mastermind");
+                break;
+		case EtatsPartie.PartieEnCours:
+				if(GUI.Button(_EmplacementBoutonValider, IconeBtnVerif ) == true)
+				{
+					if(_LigneActive != null)
+					{
+						int b, m;
+						Sprite[] codeActuel = _LigneActive.LireCodeActuel();
 
-				if(codeActuel == null)
-					return;
+						if(codeActuel == null)
+							return;
+						
+						bool gagne = VerifierCode( codeActuel, out b, out m) == true;
+						AjouterLigneHistorique(codeActuel, b, m);
 
-				if(VerifierCode( codeActuel, out b, out m) == true)
-					Debug.Log("Gagné!");
-				else
-					Debug.Log("Perdu - B=" + b.ToString() + ",M=" + m.ToString());
-
-				AjouterLigneHistorique(codeActuel, b, m);
-			}
+                        if (gagne == true)
+                        {
+                            EtatPartie = EtatsPartie.Gagne;
+                            MettreAZero();
+                        }
+                        else
+                        {
+                            if (NombreTentativesMax > 0 && Tentatives >= NombreTentativesMax)
+                            {
+                                EtatPartie = EtatsPartie.Perdu;
+                                MettreAZero();
+                            }
+                        }
+						
+					}
+				}
+			break;
 		}
 	}
+
+    protected void AfficherMenuPrincipal(string titre)
+    {
+        GUI.Box(new Rect(Screen.width / 2 - 200, Screen.height / 2 - 150, 400, 300), titre);
+        if (GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 15, 200, 30), "Lancer partie") == true)
+            LancerNouvellePartie();
+    }
 
 	public bool VerifierCode(Sprite[] CouleursPions, out int BienPlace, out int MalPlace)
 	{
@@ -154,24 +196,21 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 
 	public void InitialiserLigneActive()
 	{
-		GameObject emplacementLignes = (GameObject)GameObject.Find("EmplacementLigneActive");
-		ControlleurLigneActive ligne = emplacementLignes.GetComponent<ControlleurLigneActive>();
-		ligne.Initialiser();
-		_LigneActive = ligne;
+		_LigneActive.Initialiser();
 		Vector3 positionBoutonValider = PositionnerElementGUI(CalculerXBoutonValider(), CalculerYBoutonValider());
 		_EmplacementBoutonValider = new Rect(positionBoutonValider.x, positionBoutonValider.y, 50, 30);
 	}
 
 	public void AjouterLigneHistorique(Sprite[] code, int bienPlace, int malPlace)
 	{
-		int indexLigne = _EmplacementHistorique.transform.childCount;
+		int indexLigne = Tentatives;
 		GameObject ligne = new GameObject("Ligne_" + indexLigne.ToString());
 		for(int i = 0; i < code.Length; i++)
 		{
 			GameObject pion = (GameObject) GameObject.Instantiate(PrefabPion);
 			pion.name = "Pion_" + i.ToString();
 			pion.transform.parent = ligne.transform;
-			pion.transform.localPosition = Vector3.right * i * (LargeurPion + DistanceSeparationPions);
+			pion.transform.localPosition = pion.transform.position + Vector3.right * i * (LargeurPion + DistanceSeparationPions);
 			pion.GetComponent<SpriteRenderer>().sprite = code[i];
 		}
 		_EmplacementHistorique.transform.position += Vector3.up * (HauteurPion + DistanceSeparationLignes);
@@ -195,7 +234,7 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 		GameObject goNum = (GameObject) GameObject.Instantiate(PrefabNumeroLigne);
 		goNum.name = "NumLigne_" + numLigne.ToString();
 		goNum.transform.parent = ligne.transform;
-		goNum.transform.localPosition = new Vector3(-10, LargeurPion/2);
+		goNum.transform.localPosition = new Vector3(-10, LargeurPion/2, -1);
 		TextMesh tm = goNum.GetComponent<TextMesh>();
 		tm.text = numLigne.ToString() + ".";
 		tm.color = CouleurNumeroLigne;
@@ -225,7 +264,7 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 			GameObject pion = (GameObject) GameObject.Instantiate(PrefabVerif);
 			pion.name = "Verif_" + i.ToString();
 			pion.transform.parent = ligne.transform;
-			pion.transform.localPosition = new Vector3(x, y, 0);
+			pion.transform.localPosition = new Vector3(x, y, -1);
 			if(i >= bienPlace + malPlace)
 				pion.GetComponent<SpriteRenderer>().sprite = SpriteEmplacementVerif;
 			else if(i >= bienPlace)
@@ -238,21 +277,13 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 	public void InitialiserPionsActifs()
 	{
 		GameObject emplacementPions = (GameObject)GameObject.Find("EmplacementPions");
-		for (var i = emplacementPions.transform.childCount - 1; i >= 0; i--)
-		{
-			Transform pion = emplacementPions.transform.GetChild(i);
-			if(Application.isEditor == true)
-				DestroyImmediate(pion.gameObject);
-			else
-				Destroy(pion.gameObject);
-		}
 
 		for(int i = 0; i < NombreCouleurCodeSecret; i++)
 		{
 			GameObject obj = (GameObject) GameObject.Instantiate(PrefabPionActif);
 			obj.name = "Pion_" + i.ToString();
 			obj.transform.parent = emplacementPions.transform;
-			obj.transform.localPosition = Vector3.up * i * (HauteurPion);
+			obj.transform.localPosition = obj.transform.position + Vector3.up * i * (HauteurPion);
 			obj.GetComponent<SpriteRenderer>().sprite = ListePions[i];
 		}
 	}
@@ -285,5 +316,39 @@ public class ControlleurJeu : Singleton<ControlleurJeu>
 		largeur = TailleCodeSecret * (LargeurPion + DistanceSeparationPions) + Mathf.CeilToInt(TailleCodeSecret / 2) * largeurVerif + 50f;
 		_ZoneDefilable.size = new Vector2(largeur, hauteur);
 		_ZoneDefilable.center = new Vector2(_ZoneDefilable.size.x / 2 - 30f, -(HauteurPion+DistanceSeparationLignes)/2 *_EmplacementHistorique.transform.childCount);
+	}
+
+	public void MettreAZero()
+	{
+		_LigneActive.MettreAZero();
+		Surbrillance.SetActive(false);
+
+		GameObject emplacementPions = (GameObject)GameObject.Find("EmplacementPions");
+		for (var i = emplacementPions.transform.childCount - 1; i >= 0; i--)
+		{
+			Transform pion = emplacementPions.transform.GetChild(i);
+			if(Application.isEditor == true)
+				DestroyImmediate(pion.gameObject);
+			else
+				Destroy(pion.gameObject);
+		}
+		for (var i = _EmplacementHistorique.transform.childCount - 1; i >= 0; i--)
+		{
+			Transform pion = _EmplacementHistorique.transform.GetChild(i);
+			if(Application.isEditor == true)
+				DestroyImmediate(pion.gameObject);
+			else
+				Destroy(pion.gameObject);
+		}
+		_EmplacementHistorique.transform.position = _PositionHistoriqueOrigine;
+	}
+
+	public void LancerNouvellePartie()
+	{
+		MettreAZero();
+		InitialiserLigneActive();
+		InitialiserPionsActifs();
+		_CodeSecret = GenererCodeSecret();
+		EtatPartie = EtatsPartie.PartieEnCours;
 	}
 }

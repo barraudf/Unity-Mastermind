@@ -1,6 +1,21 @@
 fileFormatVersion: 2
 guid: 3fc8df2b2776c894f844cb2be11e8c91
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: Pion0
+    21300002: Pion1
+    21300004: Pion2
+    21300006: Pion3
+    21300008: Pion4
+    21300010: Pion5
+    21300012: Pion6
+    21300014: Pion7
+    21300016: Emplacement
+    21300018: Verif0
+    21300020: Verif1
+    21300022: EmplacementVerif
+    21300024: Surbrillance
+    21300026: Bouton
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -35,6 +50,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: .5, y: .5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spritePixelsToUnits: 1
   alphaIsTransparency: 1
   textureType: 8
@@ -50,6 +66,7 @@ TextureImporter:
         height: 64
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
     - name: Pion1
       rect:
         serializedVersion: 2
@@ -59,6 +76,7 @@ TextureImporter:
         height: 64
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
     - name: Pion2
       rect:
         serializedVersion: 2
@@ -68,6 +86,7 @@ TextureImporter:
         height: 64
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
     - name: Pion3
       rect:
         serializedVersion: 2
@@ -77,6 +96,7 @@ TextureImporter:
         height: 64
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
     - name: Pion4
       rect:
         serializedVersion: 2
@@ -86,6 +106,7 @@ TextureImporter:
         height: 64
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
     - name: Pion5
       rect:
         serializedVersion: 2
@@ -95,6 +116,7 @@ TextureImporter:
         height: 64
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
     - name: Pion6
       rect:
         serializedVersion: 2
@@ -104,6 +126,7 @@ TextureImporter:
         height: 64
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
     - name: Pion7
       rect:
         serializedVersion: 2
@@ -113,6 +136,7 @@ TextureImporter:
         height: 64
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
     - name: Emplacement
       rect:
         serializedVersion: 2
@@ -122,6 +146,7 @@ TextureImporter:
         height: 64
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
     - name: Verif0
       rect:
         serializedVersion: 2
@@ -131,6 +156,7 @@ TextureImporter:
         height: 32
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
     - name: Verif1
       rect:
         serializedVersion: 2
@@ -140,6 +166,7 @@ TextureImporter:
         height: 32
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
     - name: EmplacementVerif
       rect:
         serializedVersion: 2
@@ -149,6 +176,7 @@ TextureImporter:
         height: 32
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
     - name: Surbrillance
       rect:
         serializedVersion: 2
@@ -158,6 +186,7 @@ TextureImporter:
         height: 64
       alignment: 6
       pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
     - name: Bouton
       rect:
         serializedVersion: 2
@@ -167,5 +196,6 @@ TextureImporter:
         height: 60
       alignment: 0
       pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 

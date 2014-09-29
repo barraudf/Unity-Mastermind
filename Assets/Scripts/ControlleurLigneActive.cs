@@ -8,15 +8,6 @@ public class ControlleurLigneActive : MonoBehaviour
 	
 	public void Initialiser()
 	{
-		for (var i = transform.childCount - 1; i >= 0; i--)
-		{
-			Transform ancienEmplacement = transform.GetChild(i);
-			if(Application.isEditor == true)
-				DestroyImmediate(ancienEmplacement.gameObject);
-			else
-				Destroy(ancienEmplacement.gameObject);
-		}
-
 		_ListeSprites = new List<SpriteRenderer>(ControlleurJeu.Instance.TailleCodeSecret);
 
 		for(int i = 0; i < ControlleurJeu.Instance.TailleCodeSecret; i++)
@@ -24,7 +15,7 @@ public class ControlleurLigneActive : MonoBehaviour
 			GameObject obj = (GameObject) GameObject.Instantiate(ControlleurJeu.Instance.PrefabEmplacement);
 			obj.name = "Emplacement_" + i.ToString();
 			obj.transform.parent = transform;
-			obj.transform.localPosition = Vector3.right * i * (ControlleurJeu.Instance.LargeurPion + ControlleurJeu.Instance.DistanceSeparationLigneActive);
+			obj.transform.localPosition = obj.transform.position + Vector3.right * i * (ControlleurJeu.Instance.LargeurPion + ControlleurJeu.Instance.DistanceSeparationLigneActive);
 			_ListeSprites.Add(obj.GetComponent<SpriteRenderer>());
 		}
 	}
@@ -41,5 +32,17 @@ public class ControlleurLigneActive : MonoBehaviour
 		}
 
 		return ret.ToArray();
+	}
+
+	public void MettreAZero()
+	{
+		for (var i = transform.childCount - 1; i >= 0; i--)
+		{
+			Transform ancienEmplacement = transform.GetChild(i);
+			if(Application.isEditor == true)
+				DestroyImmediate(ancienEmplacement.gameObject);
+			else
+				Destroy(ancienEmplacement.gameObject);
+		}
 	}
 }
